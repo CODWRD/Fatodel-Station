@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>FATODEL GS - Login</title>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1>FATODEL</h1>
+        <p>Global Service</p>
+      </div>
+
+      <!-- Notification Message Box -->
+      <div id="message-box" class="message-box hidden" role="alert"></div>
+
+      <!-- Login Form -->
+      <form id="login-form">
+        <h2 class="form-title">Sign In</h2>
+
+        <div class="input-group">
+          <input
+            type="email"
+            id="login-email"
+            placeholder="Email Address"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            id="login-password"
+            placeholder="Password"
+            required
+          />
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-primary">
+          Sign In
+        </button>
+      </form>  
+    </div>
+
+         <!-- OWNER DASHBORD -->
+<div class="container dashboard hidden">
+    <div class="dashboard-header">
+        <h1>FATODEL GLOBAL SERVICE</h1>
+        <p>• Owner Dashboard</p> -->
+    </div>
+
+    <div class="top-actions">
+        <button class="btn btn-secondary">Download Excel</button>
+        <button class="btn btn-secondary">Download PDF</button>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card stat-card">
+            <h3>Daily Overview</h3>
+            <div class="stat-row"><span>Sales</span> <strong>₦45,000</strong></div>
+            <div class="stat-row"><span>Expenses</span> <strong class="text-red">₦12,500</strong></div>
+            <div class="stat-row profit-row"><span>Net Profit</span> <strong>₦32,500</strong></div>
+        </div>
+
+        <div class="card stat-card">
+            <h3>Weekly Report</h3>
+            <div class="stat-row"><span>Sales</span> <strong>₦315,000</strong></div>
+            <div class="stat-row"><span>Expenses</span> <strong class="text-red">₦85,000</strong></div>
+            <div class="stat-row profit-row"><span>Profit</span> <strong>₦230,000</strong></div>
+        </div>
+
+        <div class="card stat-card">
+            <h3>Monthly Report</h3>
+            <div class="stat-row"><span>Sales</span> <strong>₦1,250,000</strong></div>
+            <div class="stat-row"><span>Expenses</span> <strong class="text-red">₦400,000</strong></div>
+            <div class="stat-row profit-row"><span>Profit</span> <strong>₦850,000</strong></div>
+        </div>
+    </div>
+
+    <div class="card table-card">
+      
+        <div class="card-header">
+            <h3>Staff Permissions</h3>
+            <button class="btn btn-primary">+ Create Account</button>
+        </div>
+
+        <div class="staff-creation-container hidden">
+    <h2 class="form-title">Add New Staff</h2>
+    <p style="text-align:center; color:#666; margin-bottom: 20px;">Assign roles and set permissions</p>
+
+    <form class="owner-add-staff-form hidden">
+        <div class="input-group">
+            <select id="staff-role" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="" disabled selected>Select Role</option>
+                <option value="Manager">Manager</option>
+                <option value="Attendant">Attendant</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="staff-name" placeholder="Staff Full Name" required />
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="staff-email" placeholder="Staff Email Address" required />
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="staff-password" placeholder="Temporary Password" required />
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width: 100%;">
+          
+            Confirm & Create Account
+        </button>
+        
+        <div class="switch-link">
+            <button type="button" id="cancel-staff-btn" style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;">Cancel</button>
+        </div>
+    </form>
+</div>
+
+        <table class="management-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Access</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Manager_Tunde</td>
+                    <td><span class="role-badge">Manager</span></td>
+                    <td>Full Edit</td>
+                    <td><button class="btn-delete">Delete</button></td>
+                </tr>
+                <tr>
+                    <td>Staff_Blessing</td>
+                    <td><span class="role-badge">Attendant</span></td>
+                    <td>View Only</td>
+                    <td><button class="btn-delete">Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="switch-link">
+        <button id="owner-logout-btn">Logout Owner Account</button>
+    </div>
+</div>
+        </div>
+        <script src="script.js"></script>
+      </body>
+    </html>
+  </body>
+</html>
