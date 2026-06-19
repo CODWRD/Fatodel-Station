@@ -3,10 +3,7 @@ const recordController = require('./../controllers/recordController');
 
 const router = express.Router();
 
-router
-  .route('/')
-  // .post(recordController.createRecord)
-  .get(recordController.getAllRecords);
+router.route('/').get(recordController.getAllRecords);
 
 router
   .route('/:id')

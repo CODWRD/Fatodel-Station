@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
       message: 'Password are not the same!',
     },
   },
+
+  role: {
+    type: String,
+    required: true,
+  },
 });
 
 userSchema.pre('save', async function () {

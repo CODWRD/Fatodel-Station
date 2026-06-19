@@ -21,7 +21,7 @@ exports.createRecord = catchAsync(async (req, res, next) => {
 });
 
 exports.getRecordStats = catchAsync(async (req, res, next) => {
-  const record = await Record.aggregate([
+  const monthlyRecord = await Record.aggregate([
     {
       $match: {
         date: {
@@ -35,7 +35,6 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
       $group: {
         _id: null,
         monthlyLiterSales: { $sum: '$literSold' },
-        totalFuelSold: { $sum: '$attendantSales' },
         totalExpenses: { $sum: '$dailyExpenses' },
         netProfit: {
           $sum: { $subtract: ['$dailyTotalSales', '$dailyExpenses'] },
@@ -46,6 +45,19 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
       },
     },
   ]);
+
+  const role = 'Manager';
+
+  let record = monthlyRecord[0] || {};
+  if (role === 'Admin') {
+    record === record;
+  } else if (role === 'Manager') {
+    record = {
+      monthlyRevenue: record.monthlyRevenue,
+      monthlyFuelSold: record.monthlyLiterSales,
+      netProfit: record.netProfit,
+    };
+  }
 
   res.status(200).json({
     status: 'Success',
