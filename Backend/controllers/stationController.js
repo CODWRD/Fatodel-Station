@@ -25,6 +25,12 @@ exports.createManager = catchAsync(async (req, res, next) => {
     role: 'manager',
   });
 
+  // placeholder
+  const role = manager;
+
+  if (role !== 'admin')
+    return next(new AppError('Only admin can create a manager', 400));
+
   res.status(201).json({
     status: 'Success',
     data: manager,
@@ -44,4 +50,27 @@ exports.assignStationManager = catchAsync(async (req, res, next) => {
     status: 'Success',
     data: assign,
   });
+});
+
+exports.getManagers = catchAsync(async (req, res, next) => {
+  const managers = await User.find({ role: 'manager' });
+
+  if (!managers.length) return next(new AppError('No data  found', 404));
+
+  res.status(200).json({
+    status: 'Success',
+    results: managers.length,
+    data: managers,
+  });
+});
+
+exports.deleteManager = catchAsync(async (req, res, next) => {
+  const managers = await User.findByIdAndDelete({
+    _id: req.params.id,
+    role: 'manager',
+  });
+if(req.)
+  if (!manager) return next(new AppError('user not found'));
+
+
 });

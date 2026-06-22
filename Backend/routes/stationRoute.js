@@ -5,7 +5,10 @@ const router = express.Router();
 
 router.route('/').post(stationController.createStation);
 
-router.route('/manager').post(stationController.createManager);
+router
+  .route('/manager')
+  .post(stationController.createManager)
+  .get(stationController.getManagers);
 
 router.route('/:id').patch(stationController.assignStationManager);
 
