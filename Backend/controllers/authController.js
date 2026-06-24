@@ -29,7 +29,7 @@ exports.signup = catchAsync(async (req, res) => {
   });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+exports.login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
 
   if (!password || !email) {

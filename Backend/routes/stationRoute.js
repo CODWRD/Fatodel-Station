@@ -10,6 +10,8 @@ router
   .post(stationController.createManager)
   .get(stationController.getManagers);
 
+router.route('/manager/:id').delete(stationController.deleteManager);
+
 router.route('/:id').patch(stationController.assignStationManager);
 
 module.exports = router;

@@ -26,7 +26,7 @@ exports.createManager = catchAsync(async (req, res, next) => {
   });
 
   // placeholder
-  const role = manager;
+  const role = 'admin';
 
   if (role !== 'admin')
     return next(new AppError('Only admin can create a manager', 400));
@@ -65,12 +65,15 @@ exports.getManagers = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteManager = catchAsync(async (req, res, next) => {
-  const managers = await User.findByIdAndDelete({
+  const manager = await User.findByIdAndDelete({
     _id: req.params.id,
     role: 'manager',
   });
-if(req.)
+  // if(req.)
   if (!manager) return next(new AppError('user not found'));
 
-
+  res.status(200).json({
+    status: 'Success',
+    message: 'Manager successfully deleted',
+  });
 });
