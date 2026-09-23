@@ -15,7 +15,7 @@ app.use(express.json());
 
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/record', recordRouter);
-app.use('/api/v1/dashboard/stats', dashboardRouter);
+app.use('/api/v1/dashboard', dashboardRouter);
 app.use('/api/v1/station', stationRouter);
 
 app.all(/.*/, (req, res, next) => {

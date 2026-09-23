@@ -2,7 +2,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const Record = require('./../models/RecordModel');
 
-exports.getAllRecords = catchAsync(async (req, res) => {
+exports.getAllRecords = catchAsync(async (req, res, next) => {
   const queryObj = { ...req.query };
   const excludedFields = ['page', 'sort', 'limit', 'month'];
   excludedFields.forEach((el) => delete queryObj[el]);
@@ -23,10 +23,15 @@ exports.getAllRecords = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-
+  
   query = query.skip(skip).limit(limit);
-
+  
   const newRecord = await query;
+  console.log('newRecord', newRecord);
+  
+  if (!newRecord[0]) {
+    return next(new AppError('No record found', 404));
+  }
 
   res.status(200).json({
     status: 'Success',
@@ -34,8 +39,11 @@ exports.getAllRecords = catchAsync(async (req, res) => {
   });
 });
 
-exports.getRecordByID = catchAsync(async (req, res) => {
+exports.getRecordByID = catchAsync(async (req, res,next) => {
   const record = await Record.findById(req.params.id);
+  if (!record) {
+    return next(new AppError('No record found with that ID', 404));
+  }
   res.status(200).json({
     status: 'Success',
     data: record,

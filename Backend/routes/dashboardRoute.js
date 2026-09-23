@@ -3,9 +3,11 @@ const dashboardController = require('./../controllers/dashBoardController');
 
 const router = express.Router();
 
+
 router
   .route('/')
   .post(dashboardController.createRecord)
-  .get(dashboardController.getRecordStats);
+  
+router.route('/stats').get(dashboardController.getRecordStats);
 
 module.exports = router;

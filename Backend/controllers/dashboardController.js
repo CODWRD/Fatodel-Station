@@ -11,7 +11,7 @@ exports.createRecord = catchAsync(async (req, res, next) => {
   }
 
   const existing = await Record.findOne({ date });
-  if (existing) return next(new AppError('Data already existed'), 400);
+  if (existing) return next(new AppError('Data already existed', 400));
 
   await Record.create(req.body);
   res.status(201).json({
@@ -25,8 +25,8 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
     {
       $match: {
         date: {
-          $gte: new Date('2026-06-01'),
-          $lt: new Date('2026-07-01'),
+          $gte: new Date('2026-03-01'),
+          $lt: new Date('2026-04-01'),
         },
       },
     },
@@ -47,8 +47,9 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
   ]);
 
   const role = 'Manager';
-
-  let record = monthlyRecord[0] || {};
+  if (!monthlyRecord[0]) return next(new AppError('No record found', 404));
+  
+  let record = monthlyRecord[0] 
   if (role === 'Admin') {
     record === record;
   } else if (role === 'Manager') {
@@ -58,7 +59,7 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
       netProfit: record.netProfit,
     };
   }
-
+  
   res.status(200).json({
     status: 'Success',
     data: record,

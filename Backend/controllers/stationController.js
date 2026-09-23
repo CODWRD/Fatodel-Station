@@ -17,6 +17,12 @@ exports.createStation = catchAsync(async (req, res, next) => {
 });
 
 exports.createManager = catchAsync(async (req, res, next) => {
+  // placeholder
+  const role = 'admin';
+
+  if (role !== 'admin')
+    return next(new AppError('Only admin can create a manager', 403));
+
   const manager = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -24,12 +30,6 @@ exports.createManager = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
     role: 'manager',
   });
-
-  // placeholder
-  const role = 'admin';
-
-  if (role !== 'admin')
-    return next(new AppError('Only admin can create a manager', 400));
 
   res.status(201).json({
     status: 'Success',
@@ -69,7 +69,7 @@ exports.deleteManager = catchAsync(async (req, res, next) => {
     _id: req.params.id,
     role: 'manager',
   });
-  // if(req.)
+  
   if (!manager) return next(new AppError('user not found'));
 
   res.status(200).json({
