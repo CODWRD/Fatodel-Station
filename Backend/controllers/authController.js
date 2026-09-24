@@ -14,6 +14,7 @@ exports.signup = catchAsync(async (req, res) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    // role: req.body.role,
   });
 
   const token = signToken(newUser._id);
@@ -48,3 +49,16 @@ exports.login = catchAsync(async (req, res, next) => {
     token,
   });
 });
+
+exports.protect = catchAsync(async (req, res, next) =>{
+  let token
+  if(req.headers.authorization && req.headers.authorization.startsWith('Bearer'))
+ {
+ token = req.headers.authorization.split(' ')[1]
+  }
+  if(!token){return next(new AppError('You are not logged in! Please log in to get access', 401));}
+
+  next()
+})
+
+

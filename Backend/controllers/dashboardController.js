@@ -25,8 +25,8 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
     {
       $match: {
         date: {
-          $gte: new Date('2026-03-01'),
-          $lt: new Date('2026-04-01'),
+          $gte: new Date('2026-01-01'),
+          $lt: new Date('2026-02-01'),
         },
       },
     },
