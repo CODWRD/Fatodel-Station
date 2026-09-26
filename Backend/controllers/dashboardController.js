@@ -48,8 +48,8 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
 
   const role = 'Manager';
   if (!monthlyRecord[0]) return next(new AppError('No record found', 404));
-  
-  let record = monthlyRecord[0] 
+
+  let record = monthlyRecord[0];
   if (role === 'Admin') {
     record === record;
   } else if (role === 'Manager') {
@@ -59,7 +59,7 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
       netProfit: record.netProfit,
     };
   }
-  
+
   res.status(200).json({
     status: 'Success',
     data: record,
