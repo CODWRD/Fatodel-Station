@@ -11,12 +11,12 @@ const signToken = (id) =>
 
 exports.signup = catchAsync(async (req, res) => {
   const newUser = await User.create({
+    role: req.body.role,
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
-    // role: req.body.role,
   });
 
   const token = signToken(newUser._id);
@@ -38,7 +38,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findOne({ email }).select('+password');
-
+  console.log(user);
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Invalid email or password', 401))();
   }
@@ -89,3 +89,15 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   next();
 });
+
+exports.restrictTo = function (...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403),
+      );
+    }
+
+    next();
+  };
+};

@@ -3,6 +3,13 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  role: {
+    type: String,
+    enum: ['admin', 'manager'],
+    default: 'manager',
+    required: true,
+  },
+
   name: {
     type: String,
     required: [true, 'An Name is required'],
@@ -33,13 +40,6 @@ const userSchema = new mongoose.Schema({
       },
       message: 'Password are not the same!',
     },
-  },
-
-  role: {
-    type: String,
-    enum: ['admin', 'manager'],
-    default: 'manager',
-    required: true,
   },
 
   passwordChangedAt: Date,
