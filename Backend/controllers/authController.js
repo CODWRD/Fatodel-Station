@@ -5,11 +5,25 @@ const catchAsync = require('./../utils/catchAsync');
 const User = require('./../models/userModel');
 const AppError = require('./../utils/appError');
 const SendMail = require('./../utils/email.js');
+const { findOne } = require('../models/RecordModel.js');
+const { findByIdAndUpdate } = require('../models/stationModel.js');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+
+const createSigninTOken = function (user, statusCode, res) {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 exports.signup = catchAsync(async (req, res) => {
   const newUser = await User.create({
@@ -20,16 +34,7 @@ exports.signup = catchAsync(async (req, res) => {
     passwordConfirm: req.body.passwordConfirm,
     passwordChangedAt: req.body.passwordChangedAt,
   });
-
-  const token = signToken(newUser._id);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      newUser,
-    },
-  });
+  createSigninTOken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -45,12 +50,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Invalid email or password', 401))();
   }
 
-  const token = signToken(user._id);
-  console.log(token);
-  res.status(200).json({
-    status: 'Success',
-    token,
-  });
+  createSigninTOken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -70,7 +70,7 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access', 401),
     );
   }
-
+  
   const decorded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   console.log(decorded);
   const currentUser = await User.findById(decorded.id);
@@ -161,10 +161,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   await user.save();
 
-  token = signToken(user._id);
+  createSigninTOken(user, 200, res);
+});
 
-  res.status(200).json({
-    status: 'Success',
-    token,
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password');
+  console.log(user);
+
+  const { currentPassword } = req.body;
+
+  const confirmPassword = await user.correctPassword(
+    currentPassword,
+    user.password,
+  );
+
+  if (!confirmPassword)
+    return next(new AppError('Your current password is wrong.', 401));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+
+  createSigninTOken(user, 200, res);
 });
