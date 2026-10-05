@@ -51,6 +51,7 @@ exports.getRecordByID = catchAsync(async (req, res,next) => {
 });
 
 exports.updateRecord = catchAsync(async (req, res, next) => {
+  // correct the req.body
   const record = await Record.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
