@@ -15,7 +15,19 @@ const signToken = (id) =>
 
 const createSigninTOken = function (user, statusCode, res) {
   const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
 
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  res.cookie('jwt', token, cookieOptions);
+
+  user.password = undefined;
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -70,7 +82,7 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('You are not logged in! Please log in to get access', 401),
     );
   }
-  
+
   const decorded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   console.log(decorded);
   const currentUser = await User.findById(decorded.id);
