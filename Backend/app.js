@@ -1,4 +1,6 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const app = express();
 // const mongoose = require('mongoose');
 // const cors = require('cors');
@@ -10,6 +12,15 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
 // app.use(cors());
+app.use(helmet());
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'To many request from this IP, Please try again in an hour',
+});
+
+app.use('/api', limiter);
 
 app.use(express.json());
 
