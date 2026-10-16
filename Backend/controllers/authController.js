@@ -15,6 +15,7 @@ const signToken = (id) =>
 
 const createSigninTOken = function (user, statusCode, res) {
   const token = signToken(user._id);
+
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
@@ -53,13 +54,13 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!password || !email) {
-    return next(new AppError('Please provide your email or password'), 400);
+    return next(new AppError('Please provide your email or password', 400));
   }
 
   const user = await User.findOne({ email }).select('+password');
   console.log(user);
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError('Invalid email or password', 401))();
+    return next(new AppError('Invalid email or password', 401));
   }
 
   createSigninTOken(user, 200, res);
@@ -188,7 +189,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   );
 
   if (!confirmPassword)
-    return next(new AppError('Your current password wrong.', 401));
+    return next(new AppError('Your current password is wrong.', 401));
 
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;

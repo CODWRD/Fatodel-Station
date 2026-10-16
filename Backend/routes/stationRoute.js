@@ -4,7 +4,18 @@ const authController = require('./../controllers/authController');
 
 const router = express.Router();
 
-router.route('/').post(stationController.createStation);
+router
+  .route('/')
+  .post(
+    authController.protect,
+    authController.restrictTo('admin'),
+    stationController.createStation,
+  )
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    stationController.getAllStations,
+  );
 
 router
   .route('/manager')

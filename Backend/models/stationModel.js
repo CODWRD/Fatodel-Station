@@ -13,18 +13,27 @@ const stationSchema = new mongoose.Schema({
     unique: true,
   },
 
-  // owner: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'User',
-  //   required: true,
-  // },
+  owner: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 
   manager: {
-    type: 'String',
-    // default: 'vic',
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: true,
   },
 });
 
+stationSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'manager',
+    select: '-__v',
+  });
+
+  // next();
+});
 const Station = mongoose.model('Station', stationSchema);
 
 module.exports = Station;

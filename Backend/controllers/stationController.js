@@ -7,7 +7,8 @@ exports.createStation = catchAsync(async (req, res, next) => {
   const station = await Station.create({
     stationName: req.body.stationName,
     location: req.body.location,
-    // owner: User.admin._id,
+    owner: req.user._id,
+    manager: req.body.manager,
   });
 
   res.status(201).json({
@@ -16,11 +17,16 @@ exports.createStation = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createManager = catchAsync(async (req, res, next) => {
-  // placeholder
-  const role = 'admin';
+exports.getAllStations = catchAsync(async (req, res) => {
+  const stations = await Station.find();
+  res.status(200).json({
+    status: 'Success',
+    data: stations,
+  });
+});
 
-  if (role !== 'admin')
+exports.createManager = catchAsync(async (req, res, next) => {
+  if (req.user.role !== 'admin')
     return next(new AppError('Only admin can create a manager', 403));
 
   const manager = await User.create({
@@ -69,7 +75,7 @@ exports.deleteManager = catchAsync(async (req, res, next) => {
     _id: req.params.id,
     role: 'manager',
   });
-  
+
   if (!manager) return next(new AppError('user not found'));
 
   res.status(200).json({
