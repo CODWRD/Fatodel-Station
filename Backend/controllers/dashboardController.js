@@ -1,34 +1,71 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const Record = require('./../models/RecordModel');
+const Station = require('./../models/stationModel');
 
 exports.createRecord = catchAsync(async (req, res, next) => {
-  const { openingMeter, closingMeter, date } = req.body;
-  if (openingMeter <= closingMeter) {
+  const station = await Station.findOne({
+    manager: req.user.id,
+  });
+
+  if (!station) {
+    return next(new AppError('No station is assigned to this manager', 403));
+  }
+
+  const { OpeningMeter, closingMeter, date } = req.body;
+
+  if (closingMeter < OpeningMeter) {
     return next(
-      new AppError('Opening Meter must be greater than Closing Meter', 400),
+      new AppError('Closing meter cannot be less than opening meter', 400),
     );
   }
 
-  const existing = await Record.findOne({ date });
-  if (existing) return next(new AppError('Data already existed', 400));
+  const existing = await Record.findOne({
+    station: station._id,
+    date,
+  });
 
-  await Record.create(req.body);
+  if (existing) {
+    return next(
+      new AppError('A record already exists for this station and date', 400),
+    );
+  }
+
+  const record = await Record.create({
+    ...req.body,
+    station: station._id,
+    createdBy: req.user.id,
+  });
+
   res.status(201).json({
-    status: 'Success',
-    data: 'Record Created Successfully',
+    status: 'success',
+    data: {
+      record,
+    },
   });
 });
 
 exports.getRecordStats = catchAsync(async (req, res, next) => {
+  const matchStage = {
+    date: {
+      $gte: new Date('2026-01-01'),
+      $lt: new Date('2026-02-01'),
+    },
+  };
+
+  if (req.user.role === 'manager') {
+    const station = await Station.findOne({
+      manager: req.user.id,
+    });
+
+    if (!station)
+      return next(new AppError('No station is assigned to this manager', 403));
+    matchStage.station = station._id;
+  }
+
   const monthlyRecord = await Record.aggregate([
     {
-      $match: {
-        date: {
-          $gte: new Date('2026-01-01'),
-          $lt: new Date('2026-02-01'),
-        },
-      },
+      $match: matchStage,
     },
 
     {
@@ -46,22 +83,20 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
     },
   ]);
 
-  const role = 'Manager';
-  if (!monthlyRecord[0]) return next(new AppError('No record found', 404));
-
   let record = monthlyRecord[0];
-  if (role === 'Admin') {
-    record === record;
-  } else if (role === 'Manager') {
-    record = {
-      monthlyRevenue: record.monthlyRevenue,
-      monthlyFuelSold: record.monthlyLiterSales,
-      netProfit: record.netProfit,
-    };
-  }
+  if (!record) return next(new AppError('No record found', 404));
+
+  const data =
+    req.user.role === 'manager'
+      ? {
+          monthlyRevenue: record.monthlyRevenue,
+          monthlyFuelSold: record.monthlyLiterSales,
+          netProfit: record.netProfit,
+        }
+      : record;
 
   res.status(200).json({
     status: 'Success',
-    data: record,
+    data,
   });
 });

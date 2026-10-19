@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 
 const recordSchema = new mongoose.Schema(
   {
+    station: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Station',
+      required: [true, 'A record must belong to a station'],
+    },
+
+    createdBy: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: [true, 'A record must have a creator'],
+    },
+
     rate: {
       type: Number,
       required: [true, 'Please Input a fuel price'],
@@ -32,25 +44,19 @@ const recordSchema = new mongoose.Schema(
       required: [true, 'Please Input Date'],
     },
 
-    attendant: {
-      type: String,
-      required: [true, 'Please provide Attendant'],
-    },
+    // attendant: {
+    //   type: String,
+    //   required: [true, 'Please provide Attendant'],
+    // },
 
-    attendantSales: {
-      type: Number,
-      required: [true, 'Please provide Attendance Sales'],
-    },
+    // attendantSales: {
+    //   type: Number,
+    //   required: [true, 'Please provide Attendance Sales'],
+    // },
 
     note: String,
-
-    // submittedBy: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
   },
-  { Timestamps: true },
+  { timestamps: true },
 );
 
 const Record = mongoose.model('Record', recordSchema);

@@ -24,7 +24,11 @@ router
     authController.restrictTo('admin'),
     stationController.createManager,
   )
-  .get(stationController.getManagers);
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    stationController.getAllManager,
+  );
 
 router
   .route('/manager/:id')
@@ -34,6 +38,12 @@ router
     stationController.deleteManager,
   );
 
-router.route('/:id').patch(stationController.assignStationManager);
+router
+  .route('/:id')
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin'),
+    stationController.UpdateStation,
+  );
 
 module.exports = router;
