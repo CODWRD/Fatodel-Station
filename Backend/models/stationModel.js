@@ -26,14 +26,14 @@ const stationSchema = new mongoose.Schema({
   },
 });
 
-stationSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: 'manager',
-    select: '-__v',
-  });
+// stationSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: 'manager',
+//     select: '-__v',
+//   });
 
-  // next();
-});
+//   // next();
+// });
 const Station = mongoose.model('Station', stationSchema);
 
 module.exports = Station;

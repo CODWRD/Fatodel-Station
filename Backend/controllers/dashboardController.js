@@ -85,7 +85,6 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
 
   let record = monthlyRecord[0];
   if (!record) return next(new AppError('No record found', 404));
-
   const data =
     req.user.role === 'manager'
       ? {

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const recordSchema = new mongoose.Schema(
+const RecordSchema = new mongoose.Schema(
   {
     station: {
       type: mongoose.Schema.ObjectId,
@@ -44,21 +44,23 @@ const recordSchema = new mongoose.Schema(
       required: [true, 'Please Input Date'],
     },
 
-    // attendant: {
-    //   type: String,
-    //   required: [true, 'Please provide Attendant'],
-    // },
-
-    // attendantSales: {
-    //   type: Number,
-    //   required: [true, 'Please provide Attendance Sales'],
-    // },
-
     note: String,
   },
   { timestamps: true },
 );
 
-const Record = mongoose.model('Record', recordSchema);
+RecordSchema.pre(/^find/, function () {
+  this.populate({
+    path: 'station',
+    select: 'stationName',
+  });
+
+  this.populate({
+    path: 'createdBy',
+    select: 'name',
+  });
+});
+
+const Record = mongoose.model('Record', RecordSchema);
 
 module.exports = Record;
