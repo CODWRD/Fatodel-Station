@@ -117,7 +117,6 @@ exports.updateRecord = catchAsync(async (req, res, next) => {
   });
 });
 
-
 exports.deleteRecord = catchAsync(async (req, res, next) => {
   const station = await confirmManager(req.user.id, next);
 
