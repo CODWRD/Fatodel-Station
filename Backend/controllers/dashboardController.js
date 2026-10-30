@@ -1,6 +1,6 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const Record = require('./../models/RecordModel');
+const Record = require('./../models/recordModel');
 const Station = require('./../models/stationModel');
 
 exports.createRecord = catchAsync(async (req, res, next) => {

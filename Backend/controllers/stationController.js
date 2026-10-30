@@ -22,11 +22,13 @@ exports.createManager = catchAsync(async (req, res, next) => {
 });
 
 exports.createStation = catchAsync(async (req, res, next) => {
+  const { stationName, location } = req.body;
+  const manager = req.params.managerId;
   const station = await Station.create({
-    stationName: req.body.stationName,
-    location: req.body.location,
+    stationName,
+    location,
     owner: req.user._id,
-    manager: req.body.manager,
+    manager,
   });
 
   res.status(201).json({
@@ -70,7 +72,9 @@ exports.UpdateStation = catchAsync(async (req, res, next) => {
 
 exports.getAllManager = catchAsync(async (req, res, next) => {
   if (req.user.role !== 'admin')
-    return next(new AppError('Only Admin is allowed to perform this acton', 403));
+    return next(
+      new AppError('Only Admin is allowed to perform this acton', 403),
+    );
 
   const manager = await User.find({ role: 'manager' });
 
@@ -85,7 +89,9 @@ exports.getAllManager = catchAsync(async (req, res, next) => {
 
 exports.deleteManager = catchAsync(async (req, res, next) => {
   if (req.user.role !== 'admin')
-    return next(new AppError('Only Admin is allowed to perform this acton', 403));
+    return next(
+      new AppError('Only Admin is allowed to perform this acton', 403),
+    );
 
   const manager = await User.findByIdAndDelete({
     _id: req.params.id,

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const RecordSchema = new mongoose.Schema(
+const recordSchema = new mongoose.Schema(
   {
     station: {
       type: mongoose.Schema.ObjectId,
@@ -49,7 +49,7 @@ const RecordSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-RecordSchema.pre(/^find/, function () {
+recordSchema.pre(/^find/, function () {
   this.populate({
     path: 'station',
     select: 'stationName',
@@ -61,6 +61,7 @@ RecordSchema.pre(/^find/, function () {
   });
 });
 
-const Record = mongoose.model('Record', RecordSchema);
+module.exports =
+  mongoose.models.Record || mongoose.model('Record', recordSchema);
 
-module.exports = Record;
+
