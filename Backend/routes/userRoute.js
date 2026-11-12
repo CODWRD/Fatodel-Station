@@ -1,12 +1,15 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const userController = require('./../controllers/userController');
-const stationController = require('./../controllers/stationController');
+
 const router = express.Router();
 
 // router.param('id', tourController.checkID);
 router.route('/login').post(authController.login);
 router.route('/signup').post(authController.signup);
+router
+  .route('/me')
+  .get(authController.protect, userController.getMe, userController.getUser);
 
 router
   .route('/forgetpassword')
@@ -27,6 +30,8 @@ router
 router
   .route('/resetpassword/:token')
   .patch(authController.protect, authController.resetPassword);
+
+router.route('/:id').get(authController.protect, userController.getUser);
 
 router
   .route('/updateMe')

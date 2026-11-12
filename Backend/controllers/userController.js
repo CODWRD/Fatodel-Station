@@ -10,12 +10,28 @@ const filterObj = (obj, ...allowedFileds) => {
   return newObj;
 };
 
+exports.getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new AppError('No user found with that ID', 404));
+  }
+  res.status(200).json({
+    status: 'Success',
+    data: user,
+  });
+});
+
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({
     status: 'Success',
     data: users,
   });
+});
+
+exports.getMe = catchAsync(async (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {

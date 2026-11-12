@@ -39,6 +39,10 @@ const createSigninTOken = function (user, statusCode, res) {
 };
 
 exports.signup = catchAsync(async (req, res) => {
+  const admin = await User.findOne({ role: 'admin' });
+  if (admin) {
+    return next(new AppError('Admin already exists', 400));
+  }
   const newUser = await User.create({
     role: req.body.role,
     name: req.body.name,
