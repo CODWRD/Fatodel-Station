@@ -4,13 +4,11 @@ const stationSchema = new mongoose.Schema({
   stationName: {
     type: String,
     required: true,
-    unique: true,
   },
 
   location: {
     type: String,
     required: true,
-    unique: true,
   },
 
   owner: {

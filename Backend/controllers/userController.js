@@ -67,3 +67,12 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+exports.checkAdminExists = catchAsync(async (req, res, next) => {
+  const admin = await User.findOne({ role: 'admin' });
+
+  res.status(200).json({
+    status: 'success',
+    adminExists: !!admin,
+  });
+});

@@ -49,7 +49,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt,
   });
   createSigninTOken(newUser, 201, res);
 });
@@ -173,6 +172,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordChangedAt = req.body.passwordChangedAt;
   user.passwordResetToken = undefined;
   user.passwordResetTokenExpires = undefined;
 
@@ -201,3 +201,4 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   createSigninTOken(user, 200, res);
 });
+

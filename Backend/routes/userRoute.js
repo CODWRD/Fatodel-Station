@@ -7,6 +7,9 @@ const router = express.Router();
 // router.param('id', tourController.checkID);
 router.route('/login').post(authController.login);
 router.route('/signup').post(authController.signup);
+
+router.route('/admin-exists').get(userController.checkAdminExists);
+
 router
   .route('/me')
   .get(authController.protect, userController.getMe, userController.getUser);

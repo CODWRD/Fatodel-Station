@@ -14,9 +14,9 @@ exports.createRecord = catchAsync(async (req, res, next) => {
 
   const { OpeningMeter, closingMeter, date } = req.body;
 
-  if (closingMeter < OpeningMeter) {
+  if (closingMeter > OpeningMeter) {
     return next(
-      new AppError('Closing meter cannot be less than opening meter', 400),
+      new AppError('Closing meter cannot be greater than opening meter', 400),
     );
   }
 
@@ -94,11 +94,10 @@ exports.getRecordStats = catchAsync(async (req, res, next) => {
     req.user.role === 'manager'
       ? {
           monthlyRevenue: record.monthlyRevenue,
-          monthlyFuelSold: record.monthlyLiterSales,
+          monthlyLiterSales: record.monthlyLiterSales,
           netProfit: record.netProfit,
         }
       : record;
-
   res.status(200).json({
     status: 'Success',
     data,

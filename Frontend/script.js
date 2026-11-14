@@ -251,7 +251,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-
 const ICON = {
   grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
   pin: '<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
@@ -911,13 +910,13 @@ $('mgr-record-form').onsubmit = async (e) => {
 
   hideAlert('mgr-form-alert');
 
-  const open = parseFloat($('rec-open').value);
   const close = parseFloat($('rec-close').value);
+  const open = parseFloat($('rec-open').value);
 
-  if (close < open) {
+  if (close > open) {
     return showAlert(
       'mgr-form-alert',
-      'Closing meter cannot be less than opening meter.',
+      'Closing meter cannot be greater than opening meter.',
     );
   }
 
@@ -1163,7 +1162,6 @@ function editRecord(id) {
     });
 }
 
-
 function renderSettings() {
   $('set-name').value = me.name;
   $('set-email').value = me.email;
@@ -1252,7 +1250,6 @@ function exportRecordsToExcel(records, filename, stationName = '') {
 
   const worksheet = XLSX.utils.json_to_sheet(excelData);
 
- 
   worksheet['!cols'] = [
     { wch: 22 },
     { wch: 15 },
@@ -1288,7 +1285,6 @@ $('export-manager-records-btn')?.addEventListener('click', () => {
   exportRecordsToExcel(records, `Manager-Records-${month}.xlsx`);
 });
 
-
 $('export-owner-records-btn')?.addEventListener('click', () => {
   const month = $('owner-record-month')?.value;
 
@@ -1309,3 +1305,25 @@ $('export-owner-records-btn')?.addEventListener('click', () => {
     stationName,
   );
 });
+
+async function checkAdminExists() {
+  const signupLink = $('go-signup');
+  const signupSwitch = signupLink?.closest('.auth-switch');
+
+  if (!signupSwitch) return;
+
+  try {
+    const response = await api('/users/admin-exists', {
+      auth: false,
+    });
+
+    const adminExists = response.adminExists ?? response.data?.adminExists;
+
+    signupSwitch.style.display = adminExists ? 'none' : '';
+  } catch (error) {
+    console.error('Could not check admin account:', error);
+    signupSwitch.style.display = 'none';
+  }
+}
+
+checkAdminExists();
