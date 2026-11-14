@@ -60,10 +60,9 @@ exports.getAllRecords = catchAsync(async (req, res, next) => {
     };
   }
 
-  const page = Math.max(parseInt(req.query.page) || 1, 1);
-  const limit = Math.max(parseInt(req.query.limit) || 10, 1);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 100);
   const skip = (page - 1) * limit;
-
   const sort = req.query.sort === 'newest' ? '-date' : 'date';
 
   const records = await Record.find(filter).sort(sort).skip(skip).limit(limit);
@@ -121,8 +120,8 @@ exports.updateRecord = catchAsync(async (req, res, next) => {
     'dailyTotalSales',
     'dailyExpenses',
     'date',
-    'attendant',
-    'attendantSales',
+    // 'attendant',
+    // 'attendantSales',
   ];
 
   const updateData = {};

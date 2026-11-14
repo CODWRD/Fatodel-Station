@@ -894,8 +894,10 @@ function resetRecordForm() {
 
 function calcSold() {
   const sold =
-    (parseFloat($('rec-close').value) || 0) -
-    (parseFloat($('rec-open').value) || 0);
+    (parseFloat($('rec-open').value) || 0) -
+    (parseFloat($('rec-close').value) || 0);
+
+  console.log('calcSold', sold, $('rec-open').value, $('rec-close').value);
 
   $('calc-sold').textContent =
     sold > 0 ? sold.toLocaleString() + ' Litres' : '— Litres';
@@ -931,7 +933,7 @@ $('mgr-record-form').onsubmit = async (e) => {
         rate: +$('rec-price').value,
         OpeningMeter: open,
         closingMeter: close,
-        literSold: close - open,
+        literSold: open - close,
         dailyTotalSales: +$('rec-sales').value,
         dailyExpenses: +$('rec-expenses').value,
         note: $('rec-note').value.trim(),
@@ -1139,8 +1141,8 @@ function editRecord(id) {
       const open = +$('ed-open').value;
       const close = +$('ed-close').value;
 
-      if (close < open) {
-        throw new Error('Closing meter cannot be less than opening meter.');
+      if (close > open) {
+        throw new Error('Closing meter cannot be greater than opening meter.');
       }
 
       await api('/record/' + id, {
@@ -1150,7 +1152,7 @@ function editRecord(id) {
           rate: +$('ed-rate').value,
           OpeningMeter: open,
           closingMeter: close,
-          literSold: close - open,
+          literSold: open - close,
           dailyTotalSales: +$('ed-sales').value,
           dailyExpenses: +$('ed-exp').value,
         },
@@ -1272,7 +1274,8 @@ function exportRecordsToExcel(records, filename, stationName = '') {
   toast('Excel file downloaded successfully!', 'success');
 }
 
-$('export-manager-records-btn')?.addEventListener('click', () => {
+$('export-manager-records-btn')?.addEventListener('click', async (e) => {
+  const btn = e.currentTarget;
   const month = $('mgr-month')?.value;
 
   if (!month) {
@@ -1280,9 +1283,47 @@ $('export-manager-records-btn')?.addEventListener('click', () => {
     return;
   }
 
-  const records = managerExportRecords || [];
+  btn.disabled = true;
+  btn.textContent = 'Preparing Excel...';
 
-  exportRecordsToExcel(records, `Manager-Records-${month}.xlsx`);
+  try {
+    const allRecords = [];
+    const exportLimit = 100;
+    let exportPage = 1;
+
+    while (true) {
+      const qs = new URLSearchParams({
+        page: exportPage,
+        limit: exportLimit,
+        sort: $('mgr-sort').value,
+        month,
+      });
+
+      const response = await api('/record?' + qs);
+
+      const records = Array.isArray(response.data) ? response.data : [];
+
+      allRecords.push(...records);
+
+      if (records.length < exportLimit) {
+        break;
+      }
+
+      exportPage++;
+    }
+
+    if (allRecords.length === 0) {
+      toast('No records available for this month.', 'error');
+      return;
+    }
+
+    exportRecordsToExcel(allRecords, `Manager-Records-${month}.xlsx`);
+  } catch (error) {
+    toast('Could not export records: ' + error.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Download Excel';
+  }
 });
 
 $('export-owner-records-btn')?.addEventListener('click', () => {

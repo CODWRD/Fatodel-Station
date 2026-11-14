@@ -61,7 +61,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   const user = await User.findOne({ email }).select('+password');
-  console.log(user);
+  // console.log(user);
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Invalid email or password', 401));
   }
@@ -145,7 +145,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
       message: 'Token sent to email',
     });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     user.passwordResetToken = undefined;
     user.passwordResetTokenExpires = undefined;
     await user.save({ validateBeforeSave: false });
@@ -183,7 +183,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
-  console.log(user);
+  // console.log(user);
 
   const { currentPassword } = req.body;
 
@@ -201,4 +201,3 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   createSigninTOken(user, 200, res);
 });
-
