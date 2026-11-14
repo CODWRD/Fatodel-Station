@@ -7,7 +7,7 @@ const { xss } = require('express-xss-sanitizer');
 const hpp = require('hpp');
 
 // const mongoose = require('mongoose');
-// const cors = require('cors');
+const cors = require('cors');
 const userRouter = require('./routes/userRoute');
 const recordRouter = require('./routes/recordRoute');
 const dashboardRouter = require('./routes/dashboardRoute');
@@ -15,7 +15,7 @@ const stationRouter = require('./routes/stationRoute');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
-// app.use(cors());
+app.use(cors());
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,

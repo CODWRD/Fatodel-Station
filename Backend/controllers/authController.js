@@ -38,7 +38,7 @@ const createSigninTOken = function (user, statusCode, res) {
   });
 };
 
-exports.signup = catchAsync(async (req, res) => {
+exports.signup = catchAsync(async (req, res, next) => {
   const admin = await User.findOne({ role: 'admin' });
   if (admin) {
     return next(new AppError('Admin already exists', 400));
@@ -71,7 +71,6 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
-  
   // console.log('v');
   let token;
   if (

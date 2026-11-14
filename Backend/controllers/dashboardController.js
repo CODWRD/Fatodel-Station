@@ -46,12 +46,15 @@ exports.createRecord = catchAsync(async (req, res, next) => {
 });
 
 exports.getRecordStats = catchAsync(async (req, res, next) => {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
   const matchStage = {
-    
-    // Improve this code 
     date: {
-      $gte: new Date('2026-01-01'),
-      $lt: new Date('2026-02-01'),
+      $gte: startOfMonth,
+      $lt: startOfNextMonth,
     },
   };
 

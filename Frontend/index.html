@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FATODEL Station Hub</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- AUTH -->
+    <div id="auth-wrapper" class="auth-wrapper hidden">
+      <div id="screen-login" class="auth-screen active">
+        <div class="auth-left">
+          <div class="auth-brand">
+            <div class="brand-logo"><span>F</span></div>
+            <div>
+              <div class="brand-title">FATODEL</div>
+              <div class="brand-tagline">Station Hub</div>
+            </div>
+          </div>
+          <h1 class="auth-hero">
+            Fuel your<br /><em>business</em><br />forward.
+          </h1>
+          <p class="auth-hero-sub">
+            Daily records, stations and managers in one place.
+          </p>
+        </div>
+
+        <div class="auth-right">
+          <div class="auth-card">
+            <h2>Sign In</h2>
+            <p class="auth-card-sub">Admins and managers sign in here</p>
+            <div id="login-alert" class="alert hidden"></div>
+
+            <form id="login-form">
+              <div class="fg">
+                <label>Email</label>
+                <input
+                  type="email"
+                  id="l-email"
+                  placeholder="you@fatodel.com"
+                  required
+                />
+              </div>
+
+              <div class="fg">
+                <label>Password</label>
+                <input
+                  type="password"
+                  id="l-pw"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="btn-auth">Sign In</button>
+            </form>
+
+            <p class="auth-switch">
+              First time here?
+              <a href="#" id="go-signup">Create the admin account</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="screen-signup" class="auth-screen">
+        <div class="auth-left">
+          <div class="auth-brand">
+            <div class="brand-logo"><span>F</span></div>
+            <div>
+              <div class="brand-title">FATODEL</div>
+              <div class="brand-tagline">Station Hub</div>
+            </div>
+          </div>
+
+          <h1 class="auth-hero">
+            Set up<br />your <em>admin</em><br />account.
+          </h1>
+          <p class="auth-hero-sub">
+            Only one admin can exist. Managers are added from inside the app.
+          </p>
+        </div>
+
+        <div class="auth-right">
+          <div class="auth-card">
+            <h2>Create Admin Account</h2>
+            <p class="auth-card-sub">Works only if no admin exists yet</p>
+            <div id="signup-alert" class="alert hidden"></div>
+
+            <form id="signup-form">
+              <div class="fg">
+                <label>Full Name</label>
+                <input type="text" id="s-name" required />
+              </div>
+
+              <div class="fg">
+                <label>Email</label>
+                <input type="email" id="s-email" required />
+              </div>
+
+              <div class="fg">
+                <label>Password</label>
+                <input
+                  type="password"
+                  id="s-pw"
+                  placeholder="Min 8 characters"
+                  minlength="8"
+                  required
+                />
+              </div>
+
+              <div class="fg">
+                <label>Confirm Password</label>
+                <input type="password" id="s-cpw" minlength="8" required />
+              </div>
+
+              <button type="submit" class="btn-auth">Create Account</button>
+            </form>
+
+            <p class="auth-switch">
+              Already have an account? <a href="#" id="go-login">Sign in</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP -->
+    <div id="app-shell" class="app-shell hidden">
+      <aside class="sidebar" id="sidebar">
+        <div class="sb-top">
+          <div class="sb-brand">
+            <div class="brand-logo sm"><span>F</span></div>
+            <div>
+              <div class="brand-title sm">FATODEL</div>
+              <div class="brand-tagline">Station Hub</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="sb-nav" id="sb-nav"></nav>
+
+        <div class="sb-bottom">
+          <button class="nav-item" id="theme-toggle" type="button">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+            </svg>
+            Switch theme
+          </button>
+
+          <div class="sb-profile">
+            <div class="sb-avatar" id="sb-avatar">?</div>
+            <div class="sb-profile-info">
+              <strong id="sb-uname">User</strong>
+              <span id="sb-urole">Role</span>
+            </div>
+            <button class="sb-logout" id="sb-logout" title="Sign out">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="topbar">
+        <button class="hamburger" id="hamburger">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="topbar-title">FATODEL Hub</span>
+      </div>
+
+      <div class="sidebar-overlay" id="sb-overlay"></div>
+
+      <main class="main">
+        <!-- ADMIN: OVERVIEW -->
+        <div class="view" id="view-overview">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">Overview</h1>
+              <p class="view-sub">Monthly summary across all stations</p>
+            </div>
+          </div>
+          <div class="stat-grid" id="stat-grid"></div>
+          <div class="chart-card" id="split-card"></div>
+        </div>
+
+        <!-- ADMIN: STATIONS -->
+        <div class="view" id="view-stations">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">Stations</h1>
+              <p class="view-sub">Each station belongs to one manager</p>
+            </div>
+            <div class="head-actions">
+              <button class="btn-primary" id="add-station-btn">
+                Add Station
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="overflow-x">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Station</th>
+                    <th>Location</th>
+                    <th>Manager</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="stations-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN: STATION MONTHLY RECORDS -->
+        <div class="view" id="view-station-records">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title" id="owner-records-title">
+                Station Records
+              </h1>
+              <p class="view-sub" id="owner-records-subtitle">
+                Monthly records for this station
+              </p>
+            </div>
+
+            <div class="head-actions">
+              <button class="btn-secondary" id="back-to-stations-btn">
+                Back to Stations
+              </button>
+            </div>
+          </div>
+
+          <!-- OWNER RECORD FILTER AND EXCEL EXPORT -->
+          <div class="filter-bar">
+            <input
+              type="month"
+              id="owner-record-month"
+              class="select-input"
+              title="Select month"
+            />
+
+            <button
+              type="button"
+              class="btn-primary"
+              id="export-owner-records-btn"
+            >
+              Download Excel
+            </button>
+          </div>
+
+          <div class="stat-grid" id="owner-record-stats"></div>
+
+          <div class="table-card">
+            <div class="overflow-x">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Opening Meter</th>
+                    <th>Closing Meter</th>
+                    <th>Litres Sold</th>
+                    <th>Price/L</th>
+                    <th>Sales (₦)</th>
+                    <th>Expenses (₦)</th>
+                    <th>Net Profit (₦)</th>
+                  </tr>
+                </thead>
+                <tbody id="owner-records-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN: MANAGERS -->
+        <div class="view" id="view-managers">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">Managers</h1>
+              <p class="view-sub">People who submit daily records</p>
+            </div>
+
+            <div class="head-actions">
+              <button class="btn-primary" id="add-manager-btn">
+                Add Manager
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="overflow-x">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Station</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="managers-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- MANAGER: DASHBOARD -->
+        <div class="view" id="view-mgr-dashboard">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">Daily Record</h1>
+              <p class="view-sub" id="mgr-date"></p>
+            </div>
+          </div>
+
+          <div class="mgr-layout">
+            <div class="mgr-form-card">
+              <div class="mgr-form-head">
+                <h3>Submit Daily Record</h3>
+                <p>One record per date</p>
+              </div>
+
+              <div id="mgr-form-alert" class="alert hidden"></div>
+
+              <form id="mgr-record-form">
+                <div class="fg-row-2">
+                  <div class="fg">
+                    <label>Date</label>
+                    <input type="date" id="rec-date" required />
+                  </div>
+
+                  <div class="fg">
+                    <label>Fuel Price Per Litre (₦)</label>
+                    <input
+                      type="number"
+                      id="rec-price"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="fg-row-2">
+                  <div class="fg">
+                    <label>Opening Meter</label>
+                    <input
+                      type="number"
+                      id="rec-open"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+
+                  <div class="fg">
+                    <label>Closing Meter</label>
+                    <input
+                      type="number"
+                      id="rec-close"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="fg calc-row">
+                  <label>Litres Sold (from meters)</label>
+                  <div class="calc-display" id="calc-sold">— Litres</div>
+                </div>
+
+                <div class="fg-row-2">
+                  <div class="fg">
+                    <label>Daily Sales (₦)</label>
+                    <input
+                      type="number"
+                      id="rec-sales"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+
+                  <div class="fg">
+                    <label>Daily Expenses (₦)</label>
+                    <input
+                      type="number"
+                      id="rec-expenses"
+                      min="0"
+                      step="any"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="fg">
+                  <label>Note (optional)</label>
+                  <textarea id="rec-note" rows="3"></textarea>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    type="button"
+                    class="btn-secondary"
+                    id="reset-form-btn"
+                  >
+                    Reset
+                  </button>
+                  <button type="submit" class="btn-primary">Save Record</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="mgr-summary">
+              <div class="mgr-stat-card accent">
+                <span>Monthly Revenue</span>
+                <strong id="ms-revenue">—</strong>
+              </div>
+
+              <div class="mgr-stat-card">
+                <span>Fuel Sold</span>
+                <strong id="ms-litres">—</strong>
+              </div>
+
+              <div class="mgr-stat-card">
+                <span>Net Profit</span>
+                <strong id="ms-profit">—</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MANAGER: RECORDS -->
+        <div class="view" id="view-mgr-records">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">My Records</h1>
+              <p class="view-sub">Records for your station</p>
+            </div>
+          </div>
+
+          <!-- MANAGER RECORD FILTER AND EXCEL EXPORT -->
+          <div class="filter-bar">
+            <input
+              type="month"
+              id="mgr-month"
+              class="select-input"
+              title="Filter by month"
+            />
+
+            <select id="mgr-sort" class="select-input">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+
+            <button
+              type="button"
+              class="btn-primary"
+              id="export-manager-records-btn"
+            >
+              Download Excel
+            </button>
+          </div>
+
+          <div class="table-card">
+            <div class="overflow-x">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Opening</th>
+                    <th>Closing</th>
+                    <th>Sold (L)</th>
+                    <th>Price/L</th>
+                    <th>Sales ₦</th>
+                    <th>Expenses ₦</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="mgr-tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="pagination" id="mgr-pagination"></div>
+          </div>
+        </div>
+
+        <!-- BOTH: SETTINGS -->
+        <div class="view" id="view-settings">
+          <div class="view-head">
+            <div>
+              <h1 class="view-title">Settings</h1>
+              <p class="view-sub">Your account</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Profile</h3>
+              <div class="fg">
+                <label>Full Name</label>
+                <input type="text" id="set-name" />
+              </div>
+              <div class="fg">
+                <label>Email</label>
+                <input type="email" id="set-email" />
+              </div>
+              <button class="btn-primary" id="save-profile-btn">
+                Save Changes
+              </button>
+            </div>
+
+            <div class="settings-card">
+              <h3>Change Password</h3>
+              <div class="fg">
+                <label>Current Password</label>
+                <input type="password" id="pw-current" />
+              </div>
+              <div class="fg">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  id="pw-new"
+                  placeholder="Min 8 characters"
+                />
+              </div>
+              <div class="fg">
+                <label>Confirm New Password</label>
+                <input type="password" id="pw-confirm" />
+              </div>
+              <button class="btn-primary" id="save-pw-btn">
+                Update Password
+              </button>
+            </div>
+
+            <div class="settings-card danger-zone">
+              <h3>Deactivate Account</h3>
+              <p>
+                Your account will be deactivated and you will be signed out.
+              </p>
+              <button class="btn-danger" id="deactivate-btn">
+                Deactivate My Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <div class="modal-head">
+          <h3 id="modal-title"></h3>
+          <button class="modal-close" id="modal-close">✕</button>
+        </div>
+        <div id="modal-body"></div>
+        <div class="modal-foot" id="modal-foot"></div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Excel library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Application JavaScript -->
+    <script src="script.js"></script>
+  </body>
+</html>

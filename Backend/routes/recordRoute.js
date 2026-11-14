@@ -11,4 +11,13 @@ router
   .get(authController.protect, recordController.getRecordByID)
   .patch(authController.protect, recordController.updateRecord)
   .delete(authController.protect, recordController.deleteRecord);
+
+
+router
+  .route('/station/:stationId')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin'),
+    recordController.getStationMonthlyRecords
+  );
 module.exports = router;
