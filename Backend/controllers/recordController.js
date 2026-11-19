@@ -120,8 +120,8 @@ exports.updateRecord = catchAsync(async (req, res, next) => {
     'dailyTotalSales',
     'dailyExpenses',
     'date',
-    // 'attendant',
-    // 'attendantSales',
+    'attendant',
+    'note',
   ];
 
   const updateData = {};

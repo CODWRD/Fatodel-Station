@@ -44,6 +44,17 @@ const recordSchema = new mongoose.Schema(
       required: [true, 'Please Input Date'],
     },
 
+    pump: {
+      type: Number,
+      enum: [1, 2],
+      required: [true, 'Record must belong to a pump'],
+    },
+
+    attendant: {
+      type: String,
+      required: [true, 'Please provide the attendant name'],
+    },
+
     note: String,
   },
   { timestamps: true },
@@ -63,5 +74,3 @@ recordSchema.pre(/^find/, function () {
 
 module.exports =
   mongoose.models.Record || mongoose.model('Record', recordSchema);
-
-

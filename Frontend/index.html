@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en" data-theme="light">
   <head>
@@ -9,6 +10,11 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
   </head>
 
   <body>
@@ -45,13 +51,25 @@
               </div>
 
               <div class="fg">
-                <label>Password</label>
-                <input
-                  type="password"
-                  id="l-pw"
-                  placeholder="••••••••"
-                  required
-                />
+                <label for="login-password">Password</label>
+
+                <div class="password-wrapper">
+                  <input
+                    type="password"
+                    id="login-password"
+                    placeholder="••••••"
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    class="toggle-password"
+                    onclick="togglePassword('login-password', this)"
+                    aria-label="Show password"
+                  >
+                    <i class="fa-regular fa-eye"></i>
+                  </button>
+                </div>
               </div>
 
               <button type="submit" class="btn-auth">Sign In</button>
@@ -204,7 +222,7 @@
           <div class="view-head">
             <div>
               <h1 class="view-title">Stations</h1>
-              <p class="view-sub">Each station belongs to one manager</p>
+              <p class="view-sub">Each station has one manager and two pumps</p>
             </div>
             <div class="head-actions">
               <button class="btn-primary" id="add-station-btn">
@@ -238,7 +256,7 @@
                 Station Records
               </h1>
               <p class="view-sub" id="owner-records-subtitle">
-                Monthly records for this station
+                Monthly records for both pumps at this station
               </p>
             </div>
 
@@ -249,7 +267,6 @@
             </div>
           </div>
 
-          <!-- OWNER RECORD FILTER AND EXCEL EXPORT -->
           <div class="filter-bar">
             <input
               type="month"
@@ -275,6 +292,8 @@
                 <thead>
                   <tr>
                     <th>Date</th>
+                    <th>Pump</th>
+                    <th>Attendant</th>
                     <th>Opening Meter</th>
                     <th>Closing Meter</th>
                     <th>Litres Sold</th>
@@ -295,7 +314,9 @@
           <div class="view-head">
             <div>
               <h1 class="view-title">Managers</h1>
-              <p class="view-sub">People who submit daily records</p>
+              <p class="view-sub">
+                People who oversee station operations and submit daily records
+              </p>
             </div>
 
             <div class="head-actions">
@@ -334,21 +355,44 @@
           <div class="mgr-layout">
             <div class="mgr-form-card">
               <div class="mgr-form-head">
-                <h3>Submit Daily Record</h3>
-                <p>One record per date</p>
+                <h3>Submit Daily Pump Record</h3>
+                <p>One record per pump per date</p>
               </div>
 
               <div id="mgr-form-alert" class="alert hidden"></div>
 
               <form id="mgr-record-form">
+                <!-- PUMP AND ATTENDANT -->
                 <div class="fg-row-2">
                   <div class="fg">
-                    <label>Date</label>
+                    <label for="rec-pump">Pump</label>
+                    <select id="rec-pump" required>
+                      <option value="">Select pump</option>
+                      <option value="1">Pump 1</option>
+                      <option value="2">Pump 2</option>
+                    </select>
+                  </div>
+
+                  <div class="fg">
+                    <label for="rec-attendant">Attendant</label>
+                    <input
+                      type="text"
+                      id="rec-attendant"
+                      placeholder="Enter attendant name"
+                      maxlength="100"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div class="fg-row-2">
+                  <div class="fg">
+                    <label for="rec-date">Date</label>
                     <input type="date" id="rec-date" required />
                   </div>
 
                   <div class="fg">
-                    <label>Fuel Price Per Litre (₦)</label>
+                    <label for="rec-price">Fuel Price Per Litre (₦)</label>
                     <input
                       type="number"
                       id="rec-price"
@@ -361,10 +405,10 @@
 
                 <div class="fg-row-2">
                   <div class="fg">
-                    <label>Opening Meter</label>
+                    <label for="rec-close">Closing Meter</label>
                     <input
                       type="number"
-                      id="rec-open"
+                      id="rec-close"
                       min="0"
                       step="any"
                       required
@@ -372,10 +416,10 @@
                   </div>
 
                   <div class="fg">
-                    <label>Closing Meter</label>
+                    <label for="rec-open">Opening Meter</label>
                     <input
                       type="number"
-                      id="rec-close"
+                      id="rec-open"
                       min="0"
                       step="any"
                       required
@@ -390,7 +434,7 @@
 
                 <div class="fg-row-2">
                   <div class="fg">
-                    <label>Daily Sales (₦)</label>
+                    <label for="rec-sales">Daily Sales (₦)</label>
                     <input
                       type="number"
                       id="rec-sales"
@@ -401,7 +445,7 @@
                   </div>
 
                   <div class="fg">
-                    <label>Daily Expenses (₦)</label>
+                    <label for="rec-expenses">Daily Expenses (₦)</label>
                     <input
                       type="number"
                       id="rec-expenses"
@@ -413,7 +457,7 @@
                 </div>
 
                 <div class="fg">
-                  <label>Note (optional)</label>
+                  <label for="rec-note">Note (optional)</label>
                   <textarea id="rec-note" rows="3"></textarea>
                 </div>
 
@@ -454,11 +498,12 @@
           <div class="view-head">
             <div>
               <h1 class="view-title">My Records</h1>
-              <p class="view-sub">Records for your station</p>
+              <p class="view-sub">
+                Daily records for both pumps at your station
+              </p>
             </div>
           </div>
 
-          <!-- MANAGER RECORD FILTER AND EXCEL EXPORT -->
           <div class="filter-bar">
             <input
               type="month"
@@ -487,12 +532,15 @@
                 <thead>
                   <tr>
                     <th>Date</th>
+                    <th>Pump</th>
+                    <th>Attendant</th>
                     <th>Opening</th>
                     <th>Closing</th>
                     <th>Sold (L)</th>
                     <th>Price/L</th>
                     <th>Sales ₦</th>
                     <th>Expenses ₦</th>
+                    <th>Net Amount (₦)</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -541,6 +589,7 @@
                   type="password"
                   id="pw-new"
                   placeholder="Min 8 characters"
+                  minlength="8"
                 />
               </div>
               <div class="fg">

@@ -136,6 +136,26 @@ const emptyRow = (cols, title, text) =>
     </div>
   </td></tr>`;
 
+async function checkAdminExists() {
+  const signupLink = $('go-signup');
+  const signupSwitch = signupLink?.closest('.auth-switch');
+
+  if (!signupSwitch) return;
+
+  try {
+    const response = await api('/users/admin-exists', {
+      auth: false,
+    });
+
+    const adminExists = response.adminExists ?? response.data?.adminExists;
+
+    signupSwitch.style.display = adminExists ? 'none' : '';
+  } catch (error) {
+    console.error('Could not check admin account:', error);
+    signupSwitch.style.display = 'none';
+  }
+}
+
 const showScreen = (n) => {
   document
     .querySelectorAll('.auth-screen')
@@ -167,7 +187,7 @@ $('login-form').onsubmit = async (e) => {
       auth: false,
       body: {
         email: $('l-email').value.trim(),
-        password: $('l-pw').value,
+        password: $('login-password').value,
       },
     });
 
@@ -536,18 +556,110 @@ async function renderOwnerStationRecords() {
   await loadOwnerStationRecords();
 }
 
+function renderGroupedRecordRows(
+  records,
+  includeActions = false,
+  totalsSource = records,
+) {
+  const grouped = new Map();
+  const dailyTotals = new Map();
+
+  records.forEach((record) => {
+    const recordDate = day(record.date);
+
+    if (!grouped.has(recordDate)) {
+      grouped.set(recordDate, []);
+    }
+
+    grouped.get(recordDate).push(record);
+  });
+
+  totalsSource.forEach((record) => {
+    const recordDate = day(record.date);
+    const current = dailyTotals.get(recordDate) || {
+      sales: 0,
+      expenses: 0,
+      netAmount: 0,
+    };
+    const sales = Number(record.dailyTotalSales || 0);
+    const expenses = Number(record.dailyExpenses || 0);
+
+    current.sales += sales;
+    current.expenses += expenses;
+    current.netAmount += sales - expenses;
+    dailyTotals.set(recordDate, current);
+  });
+
+  let html = '';
+
+  grouped.forEach((dailyRecords, recordDate) => {
+    const totals = dailyTotals.get(recordDate) || {
+      sales: 0,
+      expenses: 0,
+      netAmount: 0,
+    };
+
+    dailyRecords.forEach((r) => {
+      const sales = Number(r.dailyTotalSales || 0);
+      const expenses = Number(r.dailyExpenses || 0);
+      const netAmount = sales - expenses;
+
+      html += `
+        <tr>
+          <td>${recordDate}</td>
+          <td>${esc(r.pump ? `Pump ${r.pump}` : '—')}</td>
+          <td>${esc(r.attendant || '—')}</td>
+          <td>${Number(r.OpeningMeter || 0).toLocaleString('en-NG')}</td>
+          <td>${Number(r.closingMeter || 0).toLocaleString('en-NG')}</td>
+          <td>${Number(r.literSold || 0).toLocaleString('en-NG')}</td>
+          <td>${fmt(r.rate)}</td>
+          <td style="color:var(--green);font-weight:600">${fmt(sales)}</td>
+          <td style="color:var(--red)">${fmt(expenses)}</td>
+          <td style="color:var(--green);font-weight:700">${fmt(netAmount)}</td>
+          ${
+            includeActions
+              ? `
+            <td>
+              <div style="display:flex;gap:6px">
+                <button class="act-btn edit" data-v="${r._id}">View</button>
+                <button class="act-btn edit" data-e="${r._id}">Edit</button>
+                <button class="act-btn del" data-d="${r._id}">Del</button>
+              </div>
+            </td>
+          `
+              : ''
+          }
+        </tr>
+      `;
+    });
+
+    html += `
+      <tr class="daily-total-row">
+        <td>${recordDate}</td>
+        <td colspan="6"><strong>DAILY TOTAL</strong></td>
+        <td><strong>${fmt(totals.sales)}</strong></td>
+        <td><strong>${fmt(totals.expenses)}</strong></td>
+        <td><strong>${fmt(totals.netAmount)}</strong></td>
+        ${includeActions ? '<td>—</td>' : ''}
+      </tr>
+    `;
+  });
+
+  return html;
+}
+
 async function loadOwnerStationRecords() {
   const tb = $('owner-records-tbody');
   const stats = $('owner-record-stats');
 
-  tb.innerHTML = emptyRow(8, 'Loading records…', '');
+  tb.innerHTML = emptyRow(10, 'Loading records…', '');
   stats.innerHTML = '';
 
   const month = $('owner-record-month').value;
 
   if (!month) {
     tb.innerHTML = emptyRow(
-      8,
+      10,
       'Select a month',
       'Choose a month to view records.',
     );
@@ -605,37 +717,18 @@ async function loadOwnerStationRecords() {
 
     if (!records.length) {
       tb.innerHTML = emptyRow(
-        8,
+        10,
         'No records found',
         'This station has no records for the selected month.',
       );
       return;
     }
 
-    tb.innerHTML = records
-      .map(
-        (r) => `
-      <tr>
-        <td>${day(r.date)}</td>
-        <td>${Number(r.OpeningMeter || 0).toLocaleString('en-NG')}</td>
-        <td>${Number(r.closingMeter || 0).toLocaleString('en-NG')}</td>
-        <td>${Number(r.literSold || 0).toLocaleString('en-NG')}</td>
-        <td>${fmt(r.rate)}</td>
-        <td style="color:var(--green);font-weight:600">
-          ${fmt(r.dailyTotalSales)}
-        </td>
-        <td style="color:var(--red)">
-          ${fmt(r.dailyExpenses)}
-        </td>
-        <td>${fmt(Number(r.dailyTotalSales || 0) - Number(r.dailyExpenses || 0))}</td>
-      </tr>
-    `,
-      )
-      .join('');
+    tb.innerHTML = renderGroupedRecordRows(records);
   } catch (e) {
     ownerStationRecords = [];
 
-    tb.innerHTML = emptyRow(8, 'Could not load records', esc(e.message));
+    tb.innerHTML = emptyRow(10, 'Could not load records', esc(e.message));
   }
 }
 
@@ -894,8 +987,8 @@ function resetRecordForm() {
 
 function calcSold() {
   const sold =
-    (parseFloat($('rec-open').value) || 0) -
-    (parseFloat($('rec-close').value) || 0);
+    (parseFloat($('rec-close').value) || 0) -
+    (parseFloat($('rec-open').value) || 0);
 
   console.log('calcSold', sold, $('rec-open').value, $('rec-close').value);
 
@@ -914,11 +1007,21 @@ $('mgr-record-form').onsubmit = async (e) => {
 
   const close = parseFloat($('rec-close').value);
   const open = parseFloat($('rec-open').value);
+  const pump = Number($('rec-pump').value);
+  const attendant = $('rec-attendant').value.trim();
 
-  if (close > open) {
+  if (![1, 2].includes(pump)) {
+    return showAlert('mgr-form-alert', 'Please select Pump 1 or Pump 2.');
+  }
+
+  if (!attendant) {
+    return showAlert('mgr-form-alert', 'Please enter the attendant name.');
+  }
+
+  if (open > close) {
     return showAlert(
       'mgr-form-alert',
-      'Closing meter cannot be greater than opening meter.',
+      'Opening meter cannot be greater than closing meter.',
     );
   }
 
@@ -930,10 +1033,12 @@ $('mgr-record-form').onsubmit = async (e) => {
       method: 'POST',
       body: {
         date: $('rec-date').value,
+        pump,
+        attendant,
         rate: +$('rec-price').value,
         OpeningMeter: open,
         closingMeter: close,
-        literSold: open - close,
+        literSold: close - open,
         dailyTotalSales: +$('rec-sales').value,
         dailyExpenses: +$('rec-expenses').value,
         note: $('rec-note').value.trim(),
@@ -941,6 +1046,7 @@ $('mgr-record-form').onsubmit = async (e) => {
     });
 
     resetRecordForm();
+
     loadMgrStats();
     toast('Record saved');
   } catch (err) {
@@ -973,30 +1079,37 @@ async function loadRecords() {
     const response = await api('/record?' + qs);
     recs = Array.isArray(response.data) ? response.data : [];
 
+    // Load the selected month's records so daily totals remain accurate
+    // even when Pump 1 and Pump 2 fall on different pagination pages.
+    const allMonthRecords = [];
+    let totalsPage = 1;
+    const totalsLimit = 100;
+
+    while (true) {
+      const totalsQs = new URLSearchParams({
+        page: totalsPage,
+        limit: totalsLimit,
+        sort: $('mgr-sort').value,
+      });
+
+      if ($('mgr-month').value) {
+        totalsQs.set('month', $('mgr-month').value);
+      }
+
+      const totalsResponse = await api('/record?' + totalsQs);
+      const pageRecords = Array.isArray(totalsResponse.data)
+        ? totalsResponse.data
+        : [];
+
+      allMonthRecords.push(...pageRecords);
+
+      if (pageRecords.length < totalsLimit) break;
+      totalsPage++;
+    }
+
     tb.innerHTML = recs.length
-      ? recs
-          .map(
-            (r) => `
-        <tr>
-          <td>${day(r.date)}</td>
-          <td>${Number(r.OpeningMeter || 0).toLocaleString('en-NG')}</td>
-          <td>${Number(r.closingMeter || 0).toLocaleString('en-NG')}</td>
-          <td>${Number(r.literSold || 0).toLocaleString('en-NG')}</td>
-          <td>${fmt(r.rate)}</td>
-          <td style="color:var(--green);font-weight:600">${fmt(r.dailyTotalSales)}</td>
-          <td style="color:var(--red)">${fmt(r.dailyExpenses)}</td>
-          <td>
-            <div style="display:flex;gap:6px">
-              <button class="act-btn edit" data-v="${r._id}">View</button>
-              <button class="act-btn edit" data-e="${r._id}">Edit</button>
-              <button class="act-btn del" data-d="${r._id}">Del</button>
-            </div>
-          </td>
-        </tr>
-      `,
-          )
-          .join('')
-      : emptyRow(8, 'No records found', 'Nothing matches this month yet.');
+      ? renderGroupedRecordRows(recs, true, allMonthRecords)
+      : emptyRow(11, 'No records found', 'Nothing matches this month yet.');
 
     tb.querySelectorAll('[data-v]').forEach((b) => {
       b.onclick = () => viewRecord(b.dataset.v);
@@ -1027,7 +1140,7 @@ async function loadRecords() {
   } catch (e) {
     recs = [];
 
-    tb.innerHTML = emptyRow(8, 'Could not load records', esc(e.message));
+    tb.innerHTML = emptyRow(11, 'Could not load records', esc(e.message));
   }
 
   const pg = $('mgr-pagination');
@@ -1075,6 +1188,8 @@ function viewRecord(id) {
     'Record Details',
     row('Date', day(r.date)) +
       row('Station', esc(r.station?.stationName || '—')) +
+      row('Pump', esc(r.pump ? `Pump ${r.pump}` : '—')) +
+      row('Attendant', esc(r.attendant || '—')) +
       row('Opening meter', Number(r.OpeningMeter || 0).toLocaleString()) +
       row('Closing meter', Number(r.closingMeter || 0).toLocaleString()) +
       row('Litres sold', fmtL(r.literSold)) +
@@ -1099,6 +1214,20 @@ function editRecord(id) {
   modal(
     'Edit Record',
     `
+      <div class="fg-row-2">
+        <div class="fg">
+          <label>Pump</label>
+          <select id="ed-pump" required>
+            <option value="1" ${Number(r.pump) === 1 ? 'selected' : ''}>Pump 1</option>
+            <option value="2" ${Number(r.pump) === 2 ? 'selected' : ''}>Pump 2</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Attendant</label>
+          <input type="text" id="ed-attendant" maxlength="100" required value="${esc(r.attendant || '')}" />
+        </div>
+      </div>
+
       <div class="fg-row-2">
         <div class="fg">
           <label>Date</label>
@@ -1140,19 +1269,31 @@ function editRecord(id) {
     run(e.target, async () => {
       const open = +$('ed-open').value;
       const close = +$('ed-close').value;
+      const pump = Number($('ed-pump').value);
+      const attendant = $('ed-attendant').value.trim();
 
-      if (close > open) {
-        throw new Error('Closing meter cannot be greater than opening meter.');
+      if (![1, 2].includes(pump)) {
+        throw new Error('Please select Pump 1 or Pump 2.');
+      }
+
+      if (!attendant) {
+        throw new Error('Please enter the attendant name.');
+      }
+
+      if (open > close) {
+        throw new Error('Opening meter cannot be greater than closing meter.');
       }
 
       await api('/record/' + id, {
         method: 'PATCH',
         body: {
           date: $('ed-date').value,
+          pump,
+          attendant,
           rate: +$('ed-rate').value,
           OpeningMeter: open,
           closingMeter: close,
-          literSold: open - close,
+          literSold: close - open,
           dailyTotalSales: +$('ed-sales').value,
           dailyExpenses: +$('ed-exp').value,
         },
@@ -1236,25 +1377,72 @@ function exportRecordsToExcel(records, filename, stationName = '') {
     return;
   }
 
-  const excelData = records.map((record) => ({
-    Station: stationName || record.station?.stationName || '',
-    Date: record.date ? new Date(record.date).toLocaleDateString() : '',
-    'Opening Meter': record.OpeningMeter ?? '',
-    'Closing Meter': record.closingMeter ?? '',
-    'Litres Sold': record.literSold ?? '',
-    'Price Per Litre': record.rate ?? '',
-    'Total Sales (NGN)': record.dailyTotalSales ?? '',
-    'Expenses (NGN)': record.dailyExpenses ?? '',
-    'Net Profit (NGN)':
-      Number(record.dailyTotalSales || 0) - Number(record.dailyExpenses || 0),
-    Note: record.note || '',
-  }));
+  const excelData = [];
+  const groupedRecords = new Map();
+
+  records.forEach((record) => {
+    const recordDate = day(record.date);
+
+    if (!groupedRecords.has(recordDate)) {
+      groupedRecords.set(recordDate, []);
+    }
+
+    groupedRecords.get(recordDate).push(record);
+  });
+
+  groupedRecords.forEach((dailyRecords, recordDate) => {
+    let totalSales = 0;
+    let totalExpenses = 0;
+    let totalNetAmount = 0;
+
+    dailyRecords.forEach((record) => {
+      const sales = Number(record.dailyTotalSales || 0);
+      const expenses = Number(record.dailyExpenses || 0);
+      const netAmount = sales - expenses;
+
+      totalSales += sales;
+      totalExpenses += expenses;
+      totalNetAmount += netAmount;
+
+      excelData.push({
+        Station: stationName || record.station?.stationName || '',
+        Date: record.date ? new Date(record.date).toLocaleDateString() : '',
+        Pump: record.pump ? `Pump ${record.pump}` : '',
+        Attendant: record.attendant || '',
+        'Opening Meter': record.OpeningMeter ?? '',
+        'Closing Meter': record.closingMeter ?? '',
+        'Litres Sold': record.literSold ?? '',
+        'Price Per Litre': record.rate ?? '',
+        'Total Sales (NGN)': sales,
+        'Expenses (NGN)': expenses,
+        'Net Profit (NGN)': netAmount,
+        Note: record.note || '',
+      });
+    });
+
+    excelData.push({
+      Station: stationName || dailyRecords[0]?.station?.stationName || '',
+      Date: recordDate,
+      Pump: 'DAILY TOTAL',
+      Attendant: '',
+      'Opening Meter': '',
+      'Closing Meter': '',
+      'Litres Sold': '',
+      'Price Per Litre': '',
+      'Total Sales (NGN)': totalSales,
+      'Expenses (NGN)': totalExpenses,
+      'Net Profit (NGN)': totalNetAmount,
+      Note: '',
+    });
+  });
 
   const worksheet = XLSX.utils.json_to_sheet(excelData);
 
   worksheet['!cols'] = [
     { wch: 22 },
     { wch: 15 },
+    { wch: 12 },
+    { wch: 22 },
     { wch: 18 },
     { wch: 18 },
     { wch: 15 },
@@ -1347,24 +1535,22 @@ $('export-owner-records-btn')?.addEventListener('click', () => {
   );
 });
 
-async function checkAdminExists() {
-  const signupLink = $('go-signup');
-  const signupSwitch = signupLink?.closest('.auth-switch');
+checkAdminExists();
 
-  if (!signupSwitch) return;
+function togglePassword(inputId, button) {
+  const input = document.getElementById(inputId);
+  const icon = button.querySelector('i');
 
-  try {
-    const response = await api('/users/admin-exists', {
-      auth: false,
-    });
+  if (!input || !icon) {
+    console.error('Password input or eye icon not found');
+    return;
+  }
 
-    const adminExists = response.adminExists ?? response.data?.adminExists;
-
-    signupSwitch.style.display = adminExists ? 'none' : '';
-  } catch (error) {
-    console.error('Could not check admin account:', error);
-    signupSwitch.style.display = 'none';
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.replace('fa-eye', 'fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.replace('fa-eye-slash', 'fa-eye');
   }
 }
-
-checkAdminExists();

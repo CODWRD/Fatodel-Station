@@ -14,15 +14,16 @@ exports.createRecord = catchAsync(async (req, res, next) => {
 
   const { OpeningMeter, closingMeter, date } = req.body;
 
-  if (closingMeter > OpeningMeter) {
+  if (OpeningMeter > closingMeter) {
     return next(
-      new AppError('Closing meter cannot be greater than opening meter', 400),
+      new AppError('Opening meter cannot be greater than closing meter', 400),
     );
   }
 
   const existing = await Record.findOne({
     station: station._id,
     date,
+    pump: req.body.pump,
   });
 
   if (existing) {

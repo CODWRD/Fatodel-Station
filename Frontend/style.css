@@ -205,6 +205,29 @@ button {
   padding: 40px 24px;
 }
 
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #777;
+  font-size: 16px;
+  padding: 5px;
+}
+
 .auth-card {
   background: var(--surface);
   border-radius: 24px;
@@ -1596,4 +1619,33 @@ button {
     max-width: 100%;
     width: 100%;
   }
+}
+
+/* ── DAILY TOTAL ROWS ── */
+.daily-total-row {
+  background: var(--bg);
+  font-weight: 800;
+  border-top: 2px solid var(--orange);
+}
+
+.daily-total-row td {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+
+.daily-total-row td:first-child {
+  color: var(--orange);
+  font-weight: 800;
+}
+
+.daily-total-row:hover td {
+  background: var(--bg) !important;
+}
+
+/* Net amount column */
+#view-mgr-records .data-table,
+#view-station-records .data-table {
+  min-width: 1000px;
 }
